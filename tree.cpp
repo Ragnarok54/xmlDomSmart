@@ -64,7 +64,7 @@ void Tree::moveElement(Node* source, Node* destination) {
 			break;
 	}
 	
-	//This call here fails
+	//This call here fails because source is a nullptr
 	//destination->addChild(source);
 }
 
