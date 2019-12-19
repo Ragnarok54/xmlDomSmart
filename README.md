@@ -1,4 +1,4 @@
 # xmlDomSmart
 Infinite Depth Tree with smart pointers
 
-This implementation could be improved. It also has some flaws when trying to move an element. Other than that, it works perfectly for all given tests.
+This implementation could be improved. Needs more checking on the delete part. Will update soon.
