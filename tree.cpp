@@ -1,30 +1,47 @@
 #include "Tree.h"
 
 void Tree::addElement(Node* newNode) {
-	elements.push_back(unique_ptr<Node> (newNode));
+	elements.push_back(unique_ptr<Node>(newNode));
 }
 
-void Tree::deleteNode(Node* node) {
-	list<unique_ptr<Node>> ::iterator it = node->child.begin(), it2;
+void Tree::deleteElement(Node* node) {
+	list<unique_ptr<Node>> ::iterator it = node->child.begin();
 
-	while(it != node->child.end()) {
+	while (it != node->child.end()) {
 		it->get()->deleteNode();
 		it = node->child.erase(it);
 	}
-	removeChild(node);
+	removeChild(*node);
 }
 
-Node* Tree::findElement(string name, string atribute, string value) {
+Node& Tree::findElement(string name, string content) {
 	Node* x = NULL;
 
 	list <unique_ptr<Node>> ::iterator it;
 	for (it = elements.begin(); it != elements.end(); it++) {
-		x = (*it)->findNode(name, atribute, value);
+		if (it->get()->name == name && it->get()->content == content)
+			return *it->get();
+		x = &(it)->get()->findNode(name, content);
 		if (x != NULL)
-			return x;
+			return *x;
 	}
-	return NULL;
+	return *x;
 }
+
+Node& Tree::findElement(string name, string attribute, string value) {
+	Node* x = NULL;
+
+	list <unique_ptr<Node>> ::iterator it;
+	for (it = elements.begin(); it != elements.end(); it++) {
+		if (it->get()->name == name && it->get()->hasAttribute(attribute, value))
+			return *it->get();
+		x = &(it)->get()->findNode(name, attribute, value);
+		if (x != NULL)
+			return *x;
+	}
+	return *x;
+}
+
 
 void  Tree::displayTree() {
 	list <unique_ptr<Node>> ::iterator it;
@@ -39,7 +56,7 @@ void  Tree::displayTree() {
 	cout << "</RootElement>\n\n";
 }
 
-void  Tree::printTree(ofstream &g) {
+void  Tree::printTree(ofstream& g) {
 	list <unique_ptr<Node>> ::iterator it;
 	int i = 0;
 
@@ -51,33 +68,39 @@ void  Tree::printTree(ofstream &g) {
 	}
 	g << "</RootElement>\n\n";
 }
-void Tree::moveElement(Node* source, Node* destination) {
+
+void Tree::moveElement(Node& source, Node& destination) {
 	list<unique_ptr<Node>> ::iterator it;
-	
-	
+
 	for (it = elements.begin(); it != elements.end(); it++) {
-		if (it->get() == source) {
+		if (it->get() == &source) {
 			elements.erase(it);
 			break;
 		}
-		if (it->get()->removeLinkToParrent(source) == 1)
+		if (it->get()->removeLinkToParent(source) == 1)
 			break;
 	}
-	
-	//This call here fails because source is a nullptr
-	//destination->addChild(source);
+	destination.addChild(source);
 }
 
-void Tree::removeChild(Node * child) {
+void Tree::removeChild(Node& child) {
 	list <unique_ptr<Node>> ::iterator it;
-	
-	for (it = elements.begin(); it != elements.end(); it++) {
 
-		if (it->get() == child){
+	for (it = elements.begin(); it != elements.end(); it++) {
+		if (it->get() == &child) {
 			elements.erase(it);
 			break;
 		}
-		if (it->get()->removeChild(child) == 1)
+		if (it->get()->removeLinkToParent(child) == 1)
 			break;
 	}
+}
+ Tree::~Tree() {
+	 list <unique_ptr<Node>> ::iterator it;
+
+	 for (it = elements.begin(); it != elements.end(); it++) {
+		 it->get()->deleteNode();
+	 }
+	 
+	 elements.clear();
 }
